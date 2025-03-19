@@ -1,4 +1,4 @@
-import { Box, Container } from '@chakra-ui/react'
+import { Box, VStack} from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TopPools } from './components/TopPools'
 import { TopYieldPools } from './components/TopYieldPools'
@@ -8,7 +8,7 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Container maxW="1200px" py={8}>
+      <VStack w="100%" py={8} alignItems="center">
         <TopPools />
         <Box
           h="2px"
@@ -17,7 +17,7 @@ function App() {
           opacity={0.3}
         />
         <TopYieldPools />
-      </Container>
+      </VStack>
     </QueryClientProvider>
   )
 }
