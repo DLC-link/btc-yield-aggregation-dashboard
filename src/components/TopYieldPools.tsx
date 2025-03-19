@@ -1,3 +1,4 @@
+import { Box, Grid, Heading, Text, Stack, Badge, SimpleGrid } from '@chakra-ui/react'
 import { Pool } from '../types/Pool'
 import { useTopYieldPools } from '../hooks/useTopYieldPools'
 
@@ -15,48 +16,123 @@ export function TopYieldPools() {
     const { topYieldPools, totalTVL, averageAPY, isLoading, isError, error } = useTopYieldPools()
 
     if (isLoading) {
-        return <div>Loading high yield pools...</div>
+        return <Text>Loading high yield pools...</Text>
     }
 
     if (isError) {
-        return <div>Error: {error?.message}</div>
+        return <Text color="red.500">Error: {error?.message}</Text>
     }
 
     return (
-        <div className="top-pools">
-            <h2>Top 5 Highest Yield BTC Pools</h2>
-            <div className="total-tvl">
-                <h3>Combined TVL: {formatTVL(totalTVL)}</h3>
-                <p className="average-apy">Average APY: {averageAPY.toFixed(2)}%</p>
-            </div>
-            <div className="top-pools-grid">
+        <Stack direction="column" spacing="8" width="100%">
+            <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
+                Top 5 Highest Yield BTC Pools
+            </Heading>
+            
+            <Box
+                bg="brand.secondary"
+                p={6}
+                borderRadius="lg"
+                border="1px"
+                borderColor="brand.accent"
+                textAlign="center"
+            >
+                <Heading as="h3" size="lg" color="brand.text" mb={2}>
+                    Combined TVL: {formatTVL(totalTVL)}
+                </Heading>
+                <Text color="brand.text" fontSize="lg" fontWeight="bold">
+                    Average APY: {averageAPY.toFixed(2)}%
+                </Text>
+            </Box>
+
+            <SimpleGrid minChildWidth="250px" spacing="6">
                 {topYieldPools.map((pool: Pool, index: number) => (
-                    <div key={pool.pool} className="top-pool-card">
-                        <div className="rank">#{index + 1}</div>
-                        <h3>{pool.project} - {pool.symbol}</h3>
-                        <div className="pool-details">
-                            <div className="apy-info highlight">
-                                <p className="apy-value">APY: {pool.apy.toFixed(2)}%</p>
+                    <Box
+                        key={pool.pool}
+                        bg="brand.secondary"
+                        p={6}
+                        borderRadius="lg"
+                        position="relative"
+                        transition="transform 0.3s"
+                        _hover={{ transform: 'translateY(-5px)' }}
+                        boxShadow="md"
+                    >
+                        <Badge
+                            position="absolute"
+                            top="-3"
+                            left="-3"
+                            bg="brand.accent"
+                            color="white"
+                            borderRadius="full"
+                            w="36px"
+                            h="36px"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            fontSize="lg"
+                            fontWeight="bold"
+                            boxShadow="md"
+                        >
+                            #{index + 1}
+                        </Badge>
+
+                        <Heading as="h3" size="md" color="brand.accent" mb={4}>
+                            {pool.project} - {pool.symbol}
+                        </Heading>
+
+                        <Stack direction="column" spacing="4">
+                            <Box
+                                w="100%"
+                                bg="white"
+                                p={4}
+                                borderRadius="md"
+                                border="1px"
+                                borderColor="brand.accent"
+                            >
+                                <Text fontSize="lg" fontWeight="bold" color="brand.accent">
+                                    APY: {pool.apy.toFixed(2)}%
+                                </Text>
                                 {pool.apyPct7D !== null && (
-                                    <p className={`apy-change ${pool.apyPct7D >= 0 ? 'positive' : 'negative'}`}>
+                                    <Text
+                                        color={pool.apyPct7D >= 0 ? "brand.accent" : "red.500"}
+                                        fontSize="sm"
+                                    >
                                         7d: {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D.toFixed(2)}%
-                                    </p>
+                                    </Text>
                                 )}
-                            </div>
-                            <div className="tvl-info">
-                                <p className="tvl-value">TVL: {formatTVL(pool.tvlUsd)}</p>
-                                <p className="tvl-percentage">
+                            </Box>
+
+                            <Box
+                                w="100%"
+                                bg="white"
+                                p={4}
+                                borderRadius="md"
+                                border="1px"
+                                borderColor="brand.secondary"
+                            >
+                                <Text fontSize="lg" fontWeight="bold" color="brand.accent">
+                                    TVL: {formatTVL(pool.tvlUsd)}
+                                </Text>
+                                <Text color="brand.accent" fontSize="sm">
                                     {((pool.tvlUsd / totalTVL) * 100).toFixed(2)}% of filtered total
-                                </p>
-                            </div>
-                            <div className="pool-meta">
-                                <p>IL Risk: {pool.ilRisk}</p>
-                                <p>Exposure: {pool.exposure}</p>
-                            </div>
-                        </div>
-                    </div>
+                                </Text>
+                            </Box>
+
+                            <Grid
+                                w="100%"
+                                templateColumns="1fr 1fr"
+                                gap={4}
+                                bg="brand.secondary"
+                                p={4}
+                                borderRadius="md"
+                            >
+                                <Text color="brand.text">IL Risk: {pool.ilRisk}</Text>
+                                <Text color="brand.text">Exposure: {pool.exposure}</Text>
+                            </Grid>
+                        </Stack>
+                    </Box>
                 ))}
-            </div>
-        </div>
+            </SimpleGrid>
+        </Stack>
     )
 } 
