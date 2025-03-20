@@ -89,26 +89,7 @@ export function TopYieldPools() {
                             </Heading>
 
                             <Stack direction="column" spacing="4">
-                                <Box
-                                    w="100%"
-                                    bg="white"
-                                    p={4}
-                                    borderRadius="md"
-                                    border="1px"
-                                    borderColor="brand.accent"
-                                >
-                                    <Text fontSize="lg" fontWeight="bold" color="brand.accent">
-                                        APY: {pool.apy.toFixed(2)}%
-                                    </Text>
-                                    {pool.apyPct7D !== null && (
-                                        <Text
-                                            color={pool.apyPct7D >= 0 ? "brand.accent" : "red.500"}
-                                            fontSize="sm"
-                                        >
-                                            7d: {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D.toFixed(2)}%
-                                        </Text>
-                                    )}
-                                </Box>
+                                
 
                                 <Box
                                     w="100%"
@@ -124,6 +105,34 @@ export function TopYieldPools() {
                                     <Text color="brand.accent" fontSize="sm">
                                         {((pool.tvlUsd / totalTVL) * 100).toFixed(2)}% of filtered total
                                     </Text>
+                                </Box>
+                                <Box
+                                    w="100%"
+                                    bg="white"
+                                    p={4}
+                                    borderRadius="md"
+                                    border="1px"
+                                    borderColor="brand.accent"
+                                >
+                                    <Text fontSize="lg" fontWeight="bold" color="brand.accent">
+                                        APY: {pool.apy}%
+                                    </Text>
+                                    {pool.apyPct7D !== null && (
+                                        <Text
+                                            color={pool.apyPct7D >= 0 ? "brand.accent" : "red.500"}
+                                            fontSize="sm"
+                                        >
+                                            7d: {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D}%
+                                        </Text>
+                                    )}
+                                    {pool.apyPct30D !== null && (
+                                        <Text
+                                            color={pool.apyPct30D >= 0 ? "brand.accent" : "red.500"}
+                                            fontSize="sm"
+                                        >
+                                            30d: {pool.apyPct30D > 0 ? '+' : ''}{pool.apyPct30D}%
+                                        </Text>
+                                    )}
                                 </Box>
 
                                 <Grid

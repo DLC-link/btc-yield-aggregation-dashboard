@@ -23,6 +23,8 @@ export function TopPools() {
         return <Text color="red.500">Error: {error?.message}</Text>
     }
 
+   
+
     const topTVLPools = pools
         .sort((a, b) => b.tvlUsd - a.tvlUsd)
         .slice(0, 5)
@@ -30,6 +32,8 @@ export function TopPools() {
             pools: [...acc.pools, pool],
             totalTVL: acc.totalTVL + pool.tvlUsd
         }), { pools: [] as Pool[], totalTVL: 0 });
+
+        console.log(topTVLPools);
 
     return (
         <VStack spacing="8" maxW="1400px" width="100%" mx="auto" px={4}>
@@ -122,14 +126,22 @@ export function TopPools() {
                                     borderColor="brand.secondary"
                                 >
                                     <Text fontSize="lg" fontWeight="bold" color="brand.accent">
-                                        APY: {pool.apy.toFixed(2)}%
+                                        APY: {pool.apy}%
                                     </Text>
                                     {pool.apyPct7D !== null && (
                                         <Text
                                             color={pool.apyPct7D >= 0 ? "brand.accent" : "red.500"}
                                             fontSize="sm"
                                         >
-                                            7d: {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D.toFixed(2)}%
+                                            7d: {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D}%
+                                        </Text>
+                                    )}
+                                    {pool.apyPct30D !== null && (
+                                        <Text
+                                            color={pool.apyPct30D >= 0 ? "brand.accent" : "red.500"}
+                                            fontSize="sm"
+                                        >
+                                            30d: {pool.apyPct30D > 0 ? '+' : ''}{pool.apyPct30D}%
                                         </Text>
                                     )}
                                 </Box>
