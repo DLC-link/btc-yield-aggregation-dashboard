@@ -1,39 +1,35 @@
-import { usePools } from './use-pools';
-import { Pool } from '../types/Pool';
-
-const MIN_BTC_TVL = 50; // Minimum 50 BTC worth of TVL
-const BTC_PRICE = 65000; // Approximate BTC price in USD
-const MIN_TVL_USD = MIN_BTC_TVL * BTC_PRICE; // Minimum TVL in USD
+import { usePoolsContext } from '../contexts/PoolsContext';
 
 export function useTopYieldPools() {
-    const { pools, isLoading, isError, error } = usePools();
+  const { pools, isLoading, isError, error } = usePoolsContext();
 
-    const topYieldPools = pools
-        // Filter pools with minimum TVL requirement
-        .filter(pool => pool.tvlUsd >= MIN_TVL_USD)
-        // Sort by APY in descending order
-        .sort((a, b) => b.apy - a.apy)
-        // Take top 5
-        .slice(0, 5)
-        .reduce((acc, pool) => {
-            return {
-                pools: [...acc.pools, pool],
-                totalTVL: acc.totalTVL + pool.tvlUsd,
-                averageAPY: acc.averageAPY + pool.apy,
-            };
-        }, { pools: [] as Pool[], totalTVL: 0, averageAPY: 0 });
-
-    // Calculate the average APY for the top 5 pools
-    const averageAPY = topYieldPools.pools.length > 0
-        ? topYieldPools.averageAPY / topYieldPools.pools.length
-        : 0;
-
+  if (isLoading || isError) {
     return {
-        topYieldPools: topYieldPools.pools,
-        totalTVL: topYieldPools.totalTVL,
-        averageAPY,
-        isLoading,
-        isError,
-        error,
+      topYieldPools: [],
+      totalTVL: 0,
+      averageAPY: 0,
+      isLoading,
+      isError,
+      error,
     };
-} 
+  }
+
+  const minTvlUsd = 50 * 20000; // 50 BTC * current BTC price (approximated)
+
+  const filteredPools = pools
+    .filter(pool => pool.tvlUsd >= minTvlUsd)
+    .sort((a, b) => b.apy - a.apy)
+    .slice(0, 5);
+
+  const totalTVL = filteredPools.reduce((sum, pool) => sum + pool.tvlUsd, 0);
+  const averageAPY = filteredPools.reduce((sum, pool) => sum + pool.apy, 0) / filteredPools.length;
+
+  return {
+    topYieldPools: filteredPools,
+    totalTVL,
+    averageAPY,
+    isLoading,
+    isError,
+    error,
+  };
+}
