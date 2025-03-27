@@ -1,16 +1,7 @@
 import { Box, Grid, Heading, Text, Stack, Badge, SimpleGrid, VStack } from '@chakra-ui/react';
 import { Pool } from '../types/Pool';
 import { usePoolsContext } from '../contexts/PoolsContext';
-
-function formatTVL(tvl: number) {
-  if (tvl >= 1e9) {
-    return `$${(tvl / 1e9).toFixed(2)}B`;
-  }
-  if (tvl >= 1e6) {
-    return `$${(tvl / 1e6).toFixed(2)}M`;
-  }
-  return `$${tvl.toLocaleString()}`;
-}
+import { formatTVL } from '../utils/formatters';
 
 export function TopPools() {
   const { pools, isLoading, isError, error } = usePoolsContext();
