@@ -1,22 +1,22 @@
 import { usePools } from './usePools';
-import { Pool } from '../types/Pool';
+import { Pool, TopPoolsData } from '../types/chart';
+import { TOP_POOLS_COUNT } from '../constants/config';
 
-export function useTopPools() {
+export function useTopPools(): TopPoolsData {
   const { pools, isLoading, isError, error } = usePools();
 
-  const topPools = pools.slice(0, 5).reduce(
-    (acc, pool) => {
+  const topPools = pools
+    .slice(0, TOP_POOLS_COUNT)
+    .reduce((acc, pool) => {
       return {
         pools: [...acc.pools, pool],
         totalTVL: acc.totalTVL + pool.tvlUsd,
       };
-    },
-    { pools: [] as Pool[], totalTVL: 0 }
-  );
+    }, { pools: [] as Pool[], totalTVL: 0 });
 
   return {
     topPools: topPools.pools,
-    topPoolsTotalTVL: topPools.totalTVL,
+    totalTVL: topPools.totalTVL,
     isLoading,
     isError,
     error,

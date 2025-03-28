@@ -1,40 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { usePoolsContext } from '../contexts/PoolsContext';
+import { Pool, PoolChartData, ChartData } from '../types/chart';
+import { fetchPoolChart } from '../services/api';
+import { MIN_TVL_USD, TOP_POOLS_COUNT, CHART_DAYS, QUERY_CONFIG } from '../constants/config';
 
-interface ChartDataPoint {
-  timestamp: string;
-  tvlUsd: number;
-  apy: number;
-}
-
-interface ChartResponse {
-  data: ChartDataPoint[];
-}
-
-interface PoolChartData {
-  poolId: string;
-  project: string;
-  symbol: string;
-  data: ChartDataPoint[];
-  growthRate: number;
-}
-
-// Helper function to fetch data for a single pool
-async function fetchPoolData(pool: {
-  pool: string;
-  project: string;
-  symbol: string;
-}): Promise<PoolChartData | null> {
+async function fetchPoolData(pool: { pool: string; project: string; symbol: string }): Promise<PoolChartData | null> {
   try {
-    const response = await fetch(`https://yields.llama.fi/chart/${pool.pool}`);
-    if (!response.ok) {
-      return null;
-    }
-    const chartData: ChartResponse = await response.json();
-
-    // Calculate growth rate (7-day)
+    const chartData = await fetchPoolChart(pool.pool);
     const sortedData = chartData.data
-      .slice(-7) // Get last 7 entries
+      .slice(-CHART_DAYS)
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     const firstTVL = sortedData[0]?.tvlUsd || 0;
@@ -53,24 +27,19 @@ async function fetchPoolData(pool: {
   }
 }
 
-// Helper function to fetch data in batches
 async function fetchPoolsInBatches(
   pools: Array<{ pool: string; project: string; symbol: string }>,
-  batchSize: number = 5
+  batchSize: number = TOP_POOLS_COUNT
 ) {
   const results: PoolChartData[] = [];
-
   const batch = pools.slice(0, batchSize);
   const batchPromises = batch.map(pool => fetchPoolData(pool));
   const batchResults = await Promise.all(batchPromises);
-
-  // Filter out null results and add valid ones
   results.push(...batchResults.filter((result): result is PoolChartData => result !== null));
-
   return results;
 }
 
-export function useCharts() {
+export function useCharts(): ChartData {
   const { pools, isLoading: isPoolsLoading } = usePoolsContext();
 
   const { data, isLoading, isError, error } = useQuery<PoolChartData[]>({
@@ -78,12 +47,10 @@ export function useCharts() {
     queryFn: async () => {
       if (!pools?.length) throw new Error('No pools available');
 
-      // Pre-filter pools by TVL to get top 5
-      const minTvlUsd = 50 * 20000; // 50 BTC * approximate current BTC price
       const topPools = pools
-        .filter(pool => pool.tvlUsd >= minTvlUsd)
+        .filter(pool => pool.tvlUsd >= MIN_TVL_USD)
         .sort((a, b) => b.tvlUsd - a.tvlUsd)
-        .slice(0, 5);
+        .slice(0, TOP_POOLS_COUNT);
 
       const poolData = await fetchPoolsInBatches(topPools);
 
@@ -94,11 +61,7 @@ export function useCharts() {
       return poolData;
     },
     enabled: !!pools?.length && !isPoolsLoading,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    retry: 2,
-    retryDelay: 1000,
+    ...QUERY_CONFIG,
   });
 
   return {

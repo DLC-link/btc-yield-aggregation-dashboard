@@ -1,30 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
-import { Pool } from '../types/Pool';
+import { Pool, PoolData } from '../types/chart';
+import { fetchPools } from '../services/api';
+import { QUERY_CONFIG } from '../constants/config';
 
-export function usePools() {
+export function usePools(): PoolData {
   const { data, isLoading, isError, error } = useQuery<Pool[]>({
     queryKey: ['pools'],
-    queryFn: async () => {
-      const response = await fetch('https://yields.llama.fi/pools');
-      if (!response.ok) {
-        throw new Error('Failed to fetch pools');
-      }
-      const data = await response.json();
-      const btcPools = data.data
-        .filter((pool: Pool) => pool.symbol.includes('BTC'))
-        .sort((a: Pool, b: Pool) => b.tvlUsd - a.tvlUsd);
-      return btcPools;
-    },
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    retry: 2,
-    retryDelay: 1000,
+    queryFn: fetchPools,
+    ...QUERY_CONFIG
   });
 
   return {
     pools: data || [],
     isLoading,
     isError,
-    error,
+    error
   };
 }
 
