@@ -16,13 +16,15 @@ import {
   Badge,
   HStack,
   Icon,
+  Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useCharts } from '../hooks/useCharts';
 import { formatTVL, formatYAxis } from '../utils/formatters';
 import { CHART_COLORS } from '../constants/config';
-import { FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { FiTrendingUp, FiTrendingDown, FiInfo } from 'react-icons/fi';
 
 // Initialize Highcharts with dark mode support
 if (typeof Highcharts === 'object') {
@@ -41,11 +43,11 @@ export function PoolChart() {
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   if (isLoading) {
-    return <Box>Loading chart data...</Box>;
+    return <Text>Loading chart data...</Text>;
   }
 
   if (isError) {
-    return <Box>Error loading chart data: {error?.message}</Box>;
+    return <Text color="red.500">Error: {error?.message}</Text>;
   }
 
   const tvlOptions: Highcharts.Options = {
@@ -183,7 +185,31 @@ export function PoolChart() {
 
   return (
     <Box width="100%" maxW="1200px" mx="auto" px={6}>
-      <Heading size="lg" mb={6}>Top 5 BTC Pools by TVL - Last 7 Days Performance</Heading>
+      <HStack spacing={2}>
+        <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
+          Pool Performance Charts
+        </Heading>
+        <Tooltip 
+          label={
+            <Box>
+              <Text mb={2}>Data Processing Steps:</Text>
+              <Text>1. Filter pools with "BTC" in symbol</Text>
+              <Text>2. Calculate minimum TVL threshold (50 BTC * current BTC price)</Text>
+              <Text>3. Filter pools with TVL ≥ threshold</Text>
+              <Text>4. Sort by TVL (descending)</Text>
+              <Text>5. Select top 5 pools</Text>
+              <Text>6. Calculate 7-day growth rates</Text>
+              <Text mt={2}>Charts show TVL and APY trends over time for filtered pools.</Text>
+            </Box>
+          }
+          hasArrow
+          placement="right"
+        >
+          <Box>
+            <Icon as={FiInfo} color="brand.accent" cursor="help" />
+          </Box>
+        </Tooltip>
+      </HStack>
       
       <Tabs variant="enclosed" mb={6}>
         <TabList>
