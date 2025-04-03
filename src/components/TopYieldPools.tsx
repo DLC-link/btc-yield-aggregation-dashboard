@@ -1,13 +1,31 @@
-import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip } from '@chakra-ui/react';
-import { Pool } from '../types/Pool';
+import { useState, useRef } from 'react';
+import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip, Button } from '@chakra-ui/react';
+import { Pool } from '../types/pool';
 import { useTopYieldPools } from '../hooks/useTopYieldPools';
 import { formatTVL } from '../utils/formatters';
 import { FiTrendingUp, FiTrendingDown, FiInfo } from 'react-icons/fi';
 
+const INITIAL_DISPLAY_COUNT = 5;
+const LOAD_MORE_COUNT = 10;
+
 export function TopYieldPools() {
   const { topYieldPools, averageAPY, isLoading, isError, error } = useTopYieldPools();
+  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const tableRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  const displayedPools = topYieldPools.slice(0, displayCount);
+  const hasMorePools = displayCount < topYieldPools.length;
+
+  const handleShowMore = () => {
+    setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, topYieldPools.length));
+  };
+
+  const handleShowLess = () => {
+    setDisplayCount(INITIAL_DISPLAY_COUNT);
+    tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   if (isLoading) {
     return <Text>Loading top yield pools...</Text>;
@@ -21,7 +39,7 @@ export function TopYieldPools() {
     <VStack spacing="8" maxW="1400px" width="100%" mx="auto" px={4}>
       <HStack spacing={2}>
         <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
-          Top 5 BTC Pools by APY
+          Top BTC Pools by APY
         </Heading>
         <Tooltip 
           label={
@@ -58,7 +76,16 @@ export function TopYieldPools() {
         </Heading>
       </Box>
 
-      <Box overflowX="auto" bg={bgColor} p={6} borderRadius="lg" borderWidth="1px" borderColor={borderColor} width="100%">
+      <Box 
+        ref={tableRef}
+        overflowX="auto" 
+        bg={bgColor} 
+        p={6} 
+        borderRadius="lg" 
+        borderWidth="1px" 
+        borderColor={borderColor} 
+        width="100%"
+      >
         <Table variant="simple" size="md">
           <Thead>
             <Tr>
@@ -70,7 +97,7 @@ export function TopYieldPools() {
             </Tr>
           </Thead>
           <Tbody>
-            {topYieldPools.map((pool, index) => (
+            {displayedPools.map((pool, index) => (
               <Tr 
                 key={pool.pool}
                 _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
@@ -86,7 +113,7 @@ export function TopYieldPools() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    fontSize="lg"
+                    fontSize={index + 1 >= 1000 ? "xs" : index + 1 >= 100 ? "sm" : "lg"}
                     fontWeight="bold"
                   >
                     #{index + 1}
@@ -151,6 +178,30 @@ export function TopYieldPools() {
             ))}
           </Tbody>
         </Table>
+        {hasMorePools && (
+          <Box textAlign="center" mt={4}>
+            <Button
+              onClick={handleShowMore}
+              colorScheme="brand"
+              variant="outline"
+              size="sm"
+            >
+              Show More
+            </Button>
+          </Box>
+        )}
+        {displayCount > INITIAL_DISPLAY_COUNT && (
+          <Box textAlign="center" mt={2}>
+            <Button
+              onClick={handleShowLess}
+              colorScheme="brand"
+              variant="ghost"
+              size="sm"
+            >
+              Show Less
+            </Button>
+          </Box>
+        )}
       </Box>
     </VStack>
   );

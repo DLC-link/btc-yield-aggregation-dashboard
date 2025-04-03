@@ -1,6 +1,6 @@
 import { usePoolsContext } from '../contexts/PoolsContext';
-import { Pool, TopYieldPoolsData } from '../types/chart';
-import { TOP_POOLS_COUNT } from '../constants/config';
+import { Pool } from '../types/pool';
+import { TopYieldPoolsData } from '../types/chart';
 import { useBtcPrice } from './useBtcPrice';
 
 export function useTopYieldPools(): TopYieldPoolsData {
@@ -30,8 +30,7 @@ export function useTopYieldPools(): TopYieldPoolsData {
       pool.tvlUsd >= minTVLInUSD &&
       pool.symbol.toUpperCase().includes('BTC')
     )
-    .sort((a, b) => b.apy - a.apy)
-    .slice(0, TOP_POOLS_COUNT);
+    .sort((a, b) => b.apy - a.apy);
 
   const totalTVL = filteredPools.reduce((sum, pool) => sum + pool.tvlUsd, 0);
   const averageAPY = filteredPools.reduce((sum, pool) => sum + pool.apy, 0) / filteredPools.length;

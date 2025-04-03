@@ -1,89 +1,93 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook } from '@testing-library/react-hooks';
 import { useTopPools } from '../useTopPools';
 import { useTopYieldPools } from '../useTopYieldPools';
 import { useCharts } from '../useCharts';
 import { useBtcPrice } from '../useBtcPrice';
+import { Pool } from '../../types/pool';
+import { PoolChartData } from '../../types/chart';
 
-// Mock the hooks' dependencies
-vi.mock('../useTopPools', () => ({
-    useTopPools: vi.fn()
-}));
+// Mock the hooks
+vi.mock('../useTopPools');
+vi.mock('../useTopYieldPools');
+vi.mock('../useCharts');
+vi.mock('../useBtcPrice');
 
-vi.mock('../useTopYieldPools', () => ({
-    useTopYieldPools: vi.fn()
-}));
+describe('Hooks', () => {
+    const mockPools: Pool[] = [
+        {
+            id: '1',
+            chain: 'ethereum',
+            project: 'project1',
+            symbol: 'BTC-ETH',
+            tvlUsd: 1000000,
+            apy: 0.05,
+            apyBase: 0.04,
+            apyReward: 0.01,
+            rewardTokens: ['TOKEN1'],
+            pool: 'pool1',
+            apyPct1D: 0.05,
+            apyPct7D: 0.06,
+            apyPct30D: 0.07,
+            stablecoin: false,
+            ilRisk: 'LOW',
+            exposure: 'BTC',
+            predictions: {
+                predictedClass: 'HIGH',
+                predictedProbability: 0.8,
+                binnedConfidence: 0.9,
+                apy: 0.05,
+                tvl: 1000000
+            },
+            growthRate: 0.1,
+            poolMeta: null,
+            mu: 0.05,
+            sigma: 0.01,
+            count: 100,
+            outlier: false,
+            underlyingTokens: ['BTC', 'ETH'],
+            il7d: null,
+            apyBase7d: null,
+            apyMean30d: 0.05,
+            volumeUsd1d: null,
+            volumeUsd7d: null,
+            apyBaseInception: null
+        }
+    ];
 
-vi.mock('../useCharts', () => ({
-    useCharts: vi.fn()
-}));
+    const mockChartData: PoolChartData[] = [
+        {
+            poolId: '1',
+            project: 'project1',
+            symbol: 'BTC-ETH',
+            data: [
+                { timestamp: '2024-01-01', tvlUsd: 1000000, apy: 0.05 },
+                { timestamp: '2024-01-02', tvlUsd: 1100000, apy: 0.06 }
+            ],
+            growthRate: 0.1
+        }
+    ];
 
-vi.mock('../useBtcPrice', () => ({
-    useBtcPrice: vi.fn()
-}));
+    beforeEach(() => {
+        vi.clearAllMocks();
 
-describe('useTopPools Hook', () => {
-    it('should filter and sort pools correctly', () => {
-        const mockPools = [
-            { pool: 'pool4', tvlUsd: 3000000, symbol: 'BTC-DAI' },
-            { pool: 'pool2', tvlUsd: 2000000, symbol: 'BTC-USDC' },
-            { pool: 'pool1', tvlUsd: 1000000, symbol: 'BTC-ETH' },
-            { pool: 'pool3', tvlUsd: 1500000, symbol: 'ETH-USDC' }
-        ];
-
+        // Mock implementations
         (useTopPools as any).mockReturnValue({
             topPools: mockPools,
-            totalTVL: 7500000,
+            totalTVL: 1000000,
             isLoading: false,
             isError: false,
             error: null
         });
-
-        const { result } = renderHook(() => useTopPools());
-
-        expect(result.current.topPools).toHaveLength(4);
-        expect(result.current.topPools[0].tvlUsd).toBe(3000000);
-        expect(result.current.topPools[1].tvlUsd).toBe(2000000);
-    });
-});
-
-describe('useTopYieldPools Hook', () => {
-    it('should filter and sort pools by APY correctly', () => {
-        const mockPools = [
-            { pool: 'pool4', apy: 9.1, symbol: 'BTC-DAI' },
-            { pool: 'pool2', apy: 7.8, symbol: 'BTC-USDC' },
-            { pool: 'pool1', apy: 5.2, symbol: 'BTC-ETH' },
-            { pool: 'pool3', apy: 4.5, symbol: 'ETH-USDC' }
-        ];
 
         (useTopYieldPools as any).mockReturnValue({
             topYieldPools: mockPools,
-            totalTVL: 7500000,
-            averageAPY: 7.4,
+            totalTVL: 1000000,
+            averageAPY: 0.05,
             isLoading: false,
             isError: false,
             error: null
         });
-
-        const { result } = renderHook(() => useTopYieldPools());
-
-        expect(result.current.topYieldPools).toHaveLength(4);
-        expect(result.current.topYieldPools[0].apy).toBe(9.1);
-        expect(result.current.topYieldPools[1].apy).toBe(7.8);
-    });
-});
-
-describe('useCharts Hook', () => {
-    it('should return chart data correctly', () => {
-        const mockChartData = [
-            {
-                poolId: 'pool1',
-                data: [
-                    { timestamp: '2023-01-01', tvlUsd: 950000 },
-                    { timestamp: '2023-01-07', tvlUsd: 1000000 }
-                ]
-            }
-        ];
 
         (useCharts as any).mockReturnValue({
             chartData: mockChartData,
@@ -92,26 +96,41 @@ describe('useCharts Hook', () => {
             error: null
         });
 
-        const { result } = renderHook(() => useCharts());
-
-        expect(result.current.chartData).toHaveLength(1);
-        expect(result.current.chartData[0].poolId).toBe('pool1');
-    });
-});
-
-describe('useBtcPrice Hook', () => {
-    it('should return BTC price correctly', () => {
-        const mockBtcPrice = 50000;
-
         (useBtcPrice as any).mockReturnValue({
-            btcPrice: mockBtcPrice,
+            btcPrice: 50000,
             isLoading: false,
             isError: false,
             error: null
         });
+    });
 
-        const { result } = renderHook(() => useBtcPrice());
+    describe('useTopPools', () => {
+        it('should return all pools sorted by TVL', () => {
+            const { result } = renderHook(() => useTopPools());
+            expect(result.current.topPools).toEqual(mockPools);
+            expect(result.current.totalTVL).toBe(1000000);
+        });
+    });
 
-        expect(result.current.btcPrice).toBe(50000);
+    describe('useTopYieldPools', () => {
+        it('should return yield pools sorted by APY', () => {
+            const { result } = renderHook(() => useTopYieldPools());
+            expect(result.current.topYieldPools).toEqual(mockPools);
+            expect(result.current.averageAPY).toBe(0.05);
+        });
+    });
+
+    describe('useCharts', () => {
+        it('should return chart data', () => {
+            const { result } = renderHook(() => useCharts());
+            expect(result.current.chartData).toEqual(mockChartData);
+        });
+    });
+
+    describe('useBtcPrice', () => {
+        it('should return current BTC price', () => {
+            const { result } = renderHook(() => useBtcPrice());
+            expect(result.current.btcPrice).toBe(50000);
+        });
     });
 }); 

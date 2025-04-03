@@ -1,27 +1,53 @@
-import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip } from '@chakra-ui/react';
+import { useState, useRef } from 'react';
+import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip, Button, Spinner } from '@chakra-ui/react';
 
 import { useTopPools } from '../hooks/useTopPools';
 import { formatTVL } from '../utils/formatters';
 import { FiInfo } from 'react-icons/fi';
 
+const INITIAL_DISPLAY_COUNT = 5;
+const LOAD_MORE_COUNT = 10;
+
 export function TopPools() {
   const { topPools, totalTVL, isLoading, isError, error } = useTopPools();
+  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const tableRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
+  const displayedPools = topPools.slice(0, displayCount);
+  const hasMorePools = displayCount < topPools.length;
+
+  const handleShowMore = () => {
+    setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, topPools.length));
+  };
+
+  const handleShowLess = () => {
+    setDisplayCount(INITIAL_DISPLAY_COUNT);
+    tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   if (isLoading) {
-    return <Text>Loading top TVL pools...</Text>;
+    return (
+      <Box textAlign="center" py={8}>
+        <Spinner size="xl" color="brand.primary" />
+      </Box>
+    );
   }
 
   if (isError) {
-    return <Text color="red.500">Error: {error?.message}</Text>;
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="red.500">Error: {error?.message || 'Failed to load pools'}</Text>
+      </Box>
+    );
   }
 
   return (
     <VStack spacing="8" maxW="1400px" width="100%" mx="auto" px={4}>
       <HStack spacing={2}>
         <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
-          Top 5 BTC Pools by TVL
+          Top BTC Pools by TVL
         </Heading>
         <Tooltip 
           label={
@@ -58,7 +84,16 @@ export function TopPools() {
         </Heading>
       </Box>
 
-      <Box overflowX="auto" bg={bgColor} p={6} borderRadius="lg" borderWidth="1px" borderColor={borderColor} width="100%">
+      <Box 
+        ref={tableRef}
+        overflowX="auto" 
+        bg={bgColor} 
+        p={6} 
+        borderRadius="lg" 
+        borderWidth="1px" 
+        borderColor={borderColor} 
+        width="100%"
+      >
         <Table variant="simple" size="md">
           <Thead>
             <Tr>
@@ -70,7 +105,7 @@ export function TopPools() {
             </Tr>
           </Thead>
           <Tbody>
-            {topPools.map((pool, index) => (
+            {displayedPools.map((pool, index) => (
               <Tr 
                 key={pool.pool}
                 _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
@@ -135,6 +170,30 @@ export function TopPools() {
             ))}
           </Tbody>
         </Table>
+        {hasMorePools && (
+          <Box textAlign="center" mt={4}>
+            <Button
+              onClick={handleShowMore}
+              colorScheme="brand"
+              variant="outline"
+              size="sm"
+            >
+              Show More
+            </Button>
+          </Box>
+        )}
+        {displayCount > INITIAL_DISPLAY_COUNT && (
+          <Box textAlign="center" mt={2}>
+            <Button
+              onClick={handleShowLess}
+              colorScheme="brand"
+              variant="ghost"
+              size="sm"
+            >
+              Show Less
+            </Button>
+          </Box>
+        )}
       </Box>
     </VStack>
   );

@@ -1,26 +1,30 @@
-export interface Predictions {
+export interface PoolPredictions {
   predictedClass: string;
   predictedProbability: number;
   binnedConfidence: number;
+  apy: number;
+  tvl: number;
 }
 
 export interface Pool {
+  id: string;
   chain: string;
   project: string;
   symbol: string;
   tvlUsd: number;
+  apy: number;
   apyBase: number;
   apyReward: number | null;
-  apy: number;
   rewardTokens: string[] | null;
   pool: string;
   apyPct1D: number;
   apyPct7D: number;
   apyPct30D: number;
   stablecoin: boolean;
-  ilRisk: string;
+  ilRisk: 'LOW' | 'MEDIUM' | 'HIGH';
   exposure: string;
-  predictions: Predictions;
+  predictions: PoolPredictions;
+  growthRate: number;
   poolMeta: string | null;
   mu: number;
   sigma: number;
