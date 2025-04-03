@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useTopPools } from '../useTopPools';
 import { useTopYieldPools } from '../useTopYieldPools';
 import { useCharts } from '../useCharts';
