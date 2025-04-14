@@ -1,5 +1,4 @@
 import { usePoolsContext } from '../contexts/PoolsContext';
-import { Pool } from '../types/pool';
 import { TopYieldPoolsData } from '../types/chart';
 import { useBtcPrice } from './useBtcPrice';
 

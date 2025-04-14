@@ -19,7 +19,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import Highcharts from 'highcharts';
+import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useCharts } from '../hooks/useCharts';
 import { formatTVL, formatYAxis } from '../utils/formatters';
@@ -87,7 +87,7 @@ export function PoolChart() {
         },
       },
       labels: {
-        formatter: function() {
+        formatter: function () {
           return formatYAxis(this.value as number);
         },
         style: {
@@ -100,7 +100,8 @@ export function PoolChart() {
       shared: true,
       useHTML: true,
       headerFormat: '<small>{point.key}</small><table>',
-      pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+      pointFormat:
+        '<tr><td style="color: {series.color}">{series.name}: </td>' +
         '<td style="text-align: right"><b>{point.y:,.0f}</b></td></tr>',
       footerFormat: '</table>',
       valueDecimals: 0,
@@ -157,7 +158,7 @@ export function PoolChart() {
         },
       },
       labels: {
-        formatter: function() {
+        formatter: function () {
           return `${(this.value as number).toFixed(2)}%`;
         },
         style: {
@@ -189,7 +190,7 @@ export function PoolChart() {
         <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
           Pool Performance Charts
         </Heading>
-        <Tooltip 
+        <Tooltip
           label={
             <Box>
               <Text mb={2}>Data Processing Steps:</Text>
@@ -210,7 +211,7 @@ export function PoolChart() {
           </Box>
         </Tooltip>
       </HStack>
-      
+
       <Tabs variant="enclosed" mb={6}>
         <TabList>
           <Tab>TVL Chart</Tab>
@@ -230,22 +231,37 @@ export function PoolChart() {
         </TabPanels>
       </Tabs>
 
-      <Box overflowX="auto" bg={bgColor} p={6} borderRadius="lg" borderWidth="1px" borderColor={borderColor}>
-        <Heading size="md" mb={4}>Pool Details</Heading>
+      <Box
+        overflowX="auto"
+        bg={bgColor}
+        p={6}
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor={borderColor}
+      >
+        <Heading size="md" mb={4}>
+          Pool Details
+        </Heading>
         <Table variant="simple" size="md">
           <Thead>
             <Tr>
               <Th width="40%">Pool</Th>
-              <Th width="20%" textAlign="center">TVL</Th>
-              <Th width="20%" textAlign="center">APY</Th>
-              <Th width="20%" textAlign="center">7D Growth</Th>
+              <Th width="20%" textAlign="center">
+                TVL
+              </Th>
+              <Th width="20%" textAlign="center">
+                APY
+              </Th>
+              <Th width="20%" textAlign="center">
+                7D Growth
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {[...chartData]
               .sort((a, b) => b.growthRate - a.growthRate)
               .map((pool, index) => (
-                <Tr 
+                <Tr
                   key={pool.poolId}
                   _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
                   transition="background-color 0.2s"
@@ -300,7 +316,8 @@ export function PoolChart() {
                         textAlign="center"
                         display="inline-block"
                       >
-                        {pool.growthRate >= 0 ? '+' : ''}{pool.growthRate.toFixed(2)}%
+                        {pool.growthRate >= 0 ? '+' : ''}
+                        {pool.growthRate.toFixed(2)}%
                       </Badge>
                     </HStack>
                   </Td>

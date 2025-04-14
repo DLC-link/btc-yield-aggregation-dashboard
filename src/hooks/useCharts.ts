@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { usePoolsContext } from '../contexts/PoolsContext';
-import { Pool } from '../types/pool';
 import { PoolChartData, ChartData } from '../types/chart';
 import { fetchPoolChart } from '../services/api';
 import { TOP_POOLS_COUNT, CHART_DAYS, QUERY_CONFIG } from '../constants/config';
