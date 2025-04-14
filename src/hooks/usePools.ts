@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Pool } from '../types/pool_temp';
+import { Pool } from '../types/pool';
 import { PoolData } from '../types/chart';
 import { fetchPools } from '../services/api';
 import { QUERY_CONFIG } from '../constants/config';

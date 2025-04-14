@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { Pool } from '../types/pool_temp';
+import { Pool } from '../types/pool';
 import { usePools } from '../hooks/usePools';
 
 interface PoolsContextType {

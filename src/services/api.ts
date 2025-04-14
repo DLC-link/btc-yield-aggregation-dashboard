@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../constants/config'
 import { ChartResponse } from '../types/chart'
-import { Pool } from '../types/pool_temp'
+import { Pool } from '../types/pool'
 
 export async function fetchPools(): Promise<Pool[]> {
     const response = await fetch(`${API_BASE_URL}/pools`)

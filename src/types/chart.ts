@@ -1,4 +1,4 @@
-import { Pool } from './pool_temp';
+import { Pool } from './pool';
 
 export interface ChartDataPoint {
     timestamp: string
