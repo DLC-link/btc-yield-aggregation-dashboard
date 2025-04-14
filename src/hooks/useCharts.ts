@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { usePoolsContext } from '../contexts/PoolsContext';
-import { Pool, PoolChartData, ChartData } from '../types/chart';
+import { Pool } from '../types/pool';
+import { PoolChartData, ChartData } from '../types/chart';
 import { fetchPoolChart } from '../services/api';
-import { MIN_TVL_USD, TOP_POOLS_COUNT, CHART_DAYS, QUERY_CONFIG } from '../constants/config';
+import { TOP_POOLS_COUNT, CHART_DAYS, QUERY_CONFIG } from '../constants/config';
+import { useBtcPrice } from './useBtcPrice';
 
 async function fetchPoolData(pool: { pool: string; project: string; symbol: string }): Promise<PoolChartData | null> {
   try {
@@ -41,15 +43,22 @@ async function fetchPoolsInBatches(
 
 export function useCharts(): ChartData {
   const { pools, isLoading: isPoolsLoading } = usePoolsContext();
+  const { btcPrice, isLoading: isPriceLoading } = useBtcPrice();
 
   const { data, isLoading, isError, error } = useQuery<PoolChartData[]>({
-    queryKey: ['charts'],
+    queryKey: ['charts', btcPrice],
     queryFn: async () => {
       if (!pools?.length) throw new Error('No pools available');
 
+      const minTVLInBTC = 50; // 50 BTC minimum
+      const minTVLInUSD = minTVLInBTC * btcPrice;
+
       const topPools = pools
-        .filter(pool => pool.tvlUsd >= MIN_TVL_USD)
-        .sort((a, b) => b.tvlUsd - a.tvlUsd)
+        .filter(pool =>
+          pool.tvlUsd >= minTVLInUSD &&
+          pool.symbol.toUpperCase().includes('BTC')
+        )
+        .sort((a, b) => b.apy - a.apy)
         .slice(0, TOP_POOLS_COUNT);
 
       const poolData = await fetchPoolsInBatches(topPools);
@@ -60,13 +69,13 @@ export function useCharts(): ChartData {
 
       return poolData;
     },
-    enabled: !!pools?.length && !isPoolsLoading,
+    enabled: !!pools?.length && !isPoolsLoading && !isPriceLoading,
     ...QUERY_CONFIG,
   });
 
   return {
     chartData: data || [],
-    isLoading: isLoading || isPoolsLoading,
+    isLoading: isLoading || isPoolsLoading || isPriceLoading,
     isError,
     error,
   };

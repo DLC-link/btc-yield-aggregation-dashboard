@@ -1,54 +1,172 @@
-# React + TypeScript + Vite
+# BTC Yield Farming Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive dashboard for tracking and analyzing Bitcoin (BTC) yield farming opportunities across various liquidity pools. The application provides real-time data visualization, performance metrics, and detailed analytics for BTC liquidity pools.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Top TVL Pools**: View the top 5 BTC pools by Total Value Locked (TVL)
+- **Top Yield Pools**: Discover the highest yielding BTC pools sorted by APY
+- **Performance Charts**: Interactive charts showing TVL and APY trends over time
+- **Pool Details**: Comprehensive information about each pool including TVL, APY, growth rates, and risk metrics
+- **Dynamic Filtering**: Automatic filtering based on current BTC price and TVL thresholds
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-## Expanding the ESLint configuration
+## Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
+- **React**: UI framework (v19.0.0)
+- **TypeScript**: Type-safe JavaScript
+- **Chakra UI**: Component library for consistent design
+- **Highcharts**: Interactive charting library
+- **React Icons**: Icon library
+- **React Query**: Data fetching and caching
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Data Processing
+- **BTC Price API**: Real-time Bitcoin price data
+- **Pool Data API**: Liquidity pool information
+- **Custom Hooks**: Data processing and filtering logic
+
+### Testing
+- **Vitest**: Testing framework
+- **React Testing Library**: Component testing utilities
+- **Jest DOM**: DOM testing utilities
+
+## Data Processing Logic
+
+### Pool Filtering
+1. Filter pools to include only those with "BTC" in their symbol
+2. Calculate minimum TVL threshold: 50 BTC * current BTC price
+3. Filter pools with TVL ≥ minimum threshold
+4. Sort pools by TVL (for TVL view) or APY (for yield view)
+5. Select top 5 pools
+
+### Metrics Calculation
+- **TVL**: Total Value Locked in USD
+- **APY**: Annual Percentage Yield
+- **Growth Rate**: 7-day percentage change in TVL
+- **Risk Assessment**: Based on impermanent loss risk and exposure metrics
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/btc-yield-dashboard.git
+   cd btc-yield-dashboard
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+   or
+   ```
+   yarn install
+   ```
+
+3. Start the development server:
+   ```
+   npm start
+   ```
+   or
+   ```
+   yarn start
+   ```
+
+4. Open your browser and navigate to `http://localhost:3000`
+
+### Running Tests
+
+To run the tests:
+
+```
+npm test
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+or
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
 ```
+yarn test
+```
+
+For watch mode during development:
+
+```
+npm run test:watch
+```
+
+or
+
+```
+yarn test:watch
+```
+
+## Project Structure
+
+```
+src/
+├── components/         # React components
+├── hooks/              # Custom React hooks
+├── services/           # API services
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── constants/          # Application constants
+└── test/               # Test setup and utilities
+```
+
+## Key Components
+
+- **TopPools**: Displays top 5 BTC pools by TVL
+- **TopYieldPools**: Shows top 5 BTC pools by APY
+- **PoolChart**: Interactive charts for TVL and APY trends
+- **PoolCard**: Individual pool information display
+
+## Data Sources
+
+The application fetches data from:
+- Bitcoin price API for current BTC value
+- Liquidity pool API for pool metrics and historical data
+
+## Testing
+
+The application includes comprehensive tests for:
+
+1. **Data Processing Logic**:
+   - Pool filtering by BTC symbol
+   - TVL threshold calculations
+   - Sorting by TVL and APY
+   - Top pool selection
+
+2. **Metrics Calculation**:
+   - Total TVL calculation
+   - Average APY calculation
+   - Growth rate calculation
+
+3. **Formatter Functions**:
+   - TVL formatting
+   - Y-axis value formatting
+
+4. **Custom Hooks**:
+   - useTopPools
+   - useTopYieldPools
+   - useCharts
+   - useBtcPrice
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Data provided by [Your Data Source]
+- Icons from React Icons
+- Charts powered by Highcharts

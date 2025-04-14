@@ -1,13 +1,34 @@
-import { Box, Grid, Heading, Text, Stack, Badge, SimpleGrid, VStack } from '@chakra-ui/react';
-import { Pool } from '../types/Pool';
+import { useState, useRef } from 'react';
+import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip, Button } from '@chakra-ui/react';
+import { Pool } from '../types/pool';
 import { useTopYieldPools } from '../hooks/useTopYieldPools';
 import { formatTVL } from '../utils/formatters';
+import { FiTrendingUp, FiTrendingDown, FiInfo } from 'react-icons/fi';
+
+const INITIAL_DISPLAY_COUNT = 5;
+const LOAD_MORE_COUNT = 10;
 
 export function TopYieldPools() {
-  const { topYieldPools, totalTVL, averageAPY, isLoading, isError, error } = useTopYieldPools();
+  const { topYieldPools, averageAPY, isLoading, isError, error } = useTopYieldPools();
+  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  const displayedPools = topYieldPools.slice(0, displayCount);
+  const hasMorePools = displayCount < topYieldPools.length;
+
+  const handleShowMore = () => {
+    setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, topYieldPools.length));
+  };
+
+  const handleShowLess = () => {
+    setDisplayCount(INITIAL_DISPLAY_COUNT);
+    tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   if (isLoading) {
-    return <Text>Loading high yield pools...</Text>;
+    return <Text>Loading top yield pools...</Text>;
   }
 
   if (isError) {
@@ -16,9 +37,30 @@ export function TopYieldPools() {
 
   return (
     <VStack spacing="8" maxW="1400px" width="100%" mx="auto" px={4}>
-      <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
-        Top 5 Highest Yield BTC Pools
-      </Heading>
+      <HStack spacing={2}>
+        <Heading as="h2" size="lg" textAlign="center" color="brand.accent">
+          Top BTC Pools by APY
+        </Heading>
+        <Tooltip 
+          label={
+            <Box>
+              <Text mb={2}>Data Processing Steps:</Text>
+              <Text>1. Filter pools with "BTC" in symbol</Text>
+              <Text>2. Calculate minimum TVL threshold (50 BTC * current BTC price)</Text>
+              <Text>3. Filter pools with TVL ≥ threshold</Text>
+              <Text>4. Sort by APY (descending)</Text>
+              <Text>5. Select top 5 pools</Text>
+              <Text mt={2}>Average APY shows mean yield of filtered pools.</Text>
+            </Box>
+          }
+          hasArrow
+          placement="right"
+        >
+          <Box>
+            <Icon as={FiInfo} color="brand.accent" cursor="help" />
+          </Box>
+        </Tooltip>
+      </HStack>
 
       <Box
         bg="brand.secondary"
@@ -30,111 +72,136 @@ export function TopYieldPools() {
         width="100%"
       >
         <Heading as="h3" size="lg" color="brand.text" mb={2}>
-          Combined TVL: {formatTVL(totalTVL)}
-        </Heading>
-        <Text color="brand.text" fontSize="lg" fontWeight="bold">
           Average APY: {averageAPY.toFixed(2)}%
-        </Text>
+        </Heading>
       </Box>
 
-      <Box display="flex" justifyContent="center" width="100%">
-        <SimpleGrid
-          templateColumns={['1fr', '1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
-          spacing="6"
-          maxW="1200px"
-          width="100%"
-          justifyItems="center"
-        >
-          {topYieldPools.map((pool: Pool, index: number) => (
-            <Box
-              key={pool.pool}
-              bg="brand.secondary"
-              p={6}
-              borderRadius="lg"
-              position="relative"
-              transition="transform 0.3s"
-              _hover={{ transform: 'translateY(-5px)' }}
-              boxShadow="md"
-            >
-              <Badge
-                position="absolute"
-                top="-3"
-                left="-3"
-                bg="brand.accent"
-                color="white"
-                borderRadius="full"
-                w="36px"
-                h="36px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="lg"
-                fontWeight="bold"
-                boxShadow="md"
+      <Box 
+        ref={tableRef}
+        overflowX="auto" 
+        bg={bgColor} 
+        p={6} 
+        borderRadius="lg" 
+        borderWidth="1px" 
+        borderColor={borderColor} 
+        width="100%"
+      >
+        <Table variant="simple" size="md">
+          <Thead>
+            <Tr>
+              <Th width="10%">Rank</Th>
+              <Th width="40%">Pool</Th>
+              <Th width="20%" textAlign="center">TVL</Th>
+              <Th width="20%" textAlign="center">APY</Th>
+              <Th width="10%" textAlign="center">Risk</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {displayedPools.map((pool, index) => (
+              <Tr 
+                key={pool.pool}
+                _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
+                transition="background-color 0.2s"
               >
-                #{index + 1}
-              </Badge>
-
-              <Heading as="h3" size="md" color="brand.accent" mb={4}>
-                {pool.project} - {pool.symbol}
-              </Heading>
-
-              <Stack direction="column" spacing="4">
-                <Box
-                  w="100%"
-                  bg="white"
-                  p={4}
-                  borderRadius="md"
-                  border="1px"
-                  borderColor="brand.secondary"
-                >
-                  <Text fontSize="lg" fontWeight="bold" color="brand.accent">
-                    TVL: {formatTVL(pool.tvlUsd)}
-                  </Text>
-                  <Text color="brand.accent" fontSize="sm">
-                    {((pool.tvlUsd / totalTVL) * 100).toFixed(2)}% of filtered total
-                  </Text>
-                </Box>
-                <Box
-                  w="100%"
-                  bg="white"
-                  p={4}
-                  borderRadius="md"
-                  border="1px"
-                  borderColor="brand.accent"
-                >
-                  <Text fontSize="lg" fontWeight="bold" color="brand.accent">
-                    APY: {pool.apy}%
-                  </Text>
-                  {pool.apyPct7D !== null && (
-                    <Text color={pool.apyPct7D >= 0 ? 'brand.accent' : 'red.500'} fontSize="sm">
-                      7d: {pool.apyPct7D > 0 ? '+' : ''}
-                      {pool.apyPct7D}%
-                    </Text>
-                  )}
-                  {pool.apyPct30D !== null && (
-                    <Text color={pool.apyPct30D >= 0 ? 'brand.accent' : 'red.500'} fontSize="sm">
-                      30d: {pool.apyPct30D > 0 ? '+' : ''}
-                      {pool.apyPct30D}%
-                    </Text>
-                  )}
-                </Box>
-
-                <Grid
-                  w="100%"
-                  templateColumns="1fr 1fr"
-                  gap={4}
-                  bg="brand.secondary"
-                  p={4}
-                  borderRadius="md"
-                >
-                  <Text color="brand.text">IL Risk: {pool.ilRisk}</Text>
-                  <Text color="brand.text">Exposure: {pool.exposure}</Text>
-                </Grid>
-              </Stack>
-            </Box>
-          ))}
-        </SimpleGrid>
+                <Td>
+                  <Badge
+                    bg="brand.accent"
+                    color="white"
+                    borderRadius="full"
+                    w="36px"
+                    h="36px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontSize={index + 1 >= 1000 ? "xs" : index + 1 >= 100 ? "sm" : "lg"}
+                    fontWeight="bold"
+                  >
+                    #{index + 1}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Box>
+                    <Box fontWeight="medium">{pool.project}</Box>
+                    <Box fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
+                      {pool.symbol}
+                    </Box>
+                  </Box>
+                </Td>
+                <Td fontWeight="medium" textAlign="center">
+                  {formatTVL(pool.tvlUsd)}
+                </Td>
+                <Td textAlign="center">
+                  <HStack justify="center" spacing={2}>
+                    <Badge
+                      colorScheme={pool.apy >= 5 ? 'green' : 'blue'}
+                      fontSize="sm"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      minW="80px"
+                      textAlign="center"
+                      display="inline-block"
+                    >
+                      {pool.apy.toFixed(2)}%
+                    </Badge>
+                    {pool.apyPct7D !== null && (
+                      <HStack spacing={1}>
+                        <Icon
+                          as={pool.apyPct7D >= 0 ? FiTrendingUp : FiTrendingDown}
+                          color={pool.apyPct7D >= 0 ? 'green.500' : 'red.500'}
+                        />
+                        <Text
+                          fontSize="sm"
+                          color={pool.apyPct7D >= 0 ? 'green.500' : 'red.500'}
+                        >
+                          {pool.apyPct7D > 0 ? '+' : ''}{pool.apyPct7D.toFixed(2)}%
+                        </Text>
+                      </HStack>
+                    )}
+                  </HStack>
+                </Td>
+                <Td textAlign="center">
+                  <Badge
+                    colorScheme={pool.ilRisk === 'LOW' ? 'green' : pool.ilRisk === 'MEDIUM' ? 'yellow' : 'red'}
+                    fontSize="sm"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    minW="80px"
+                    textAlign="center"
+                    display="inline-block"
+                  >
+                    {pool.ilRisk}
+                  </Badge>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+        {hasMorePools && (
+          <Box textAlign="center" mt={4}>
+            <Button
+              onClick={handleShowMore}
+              colorScheme="brand"
+              variant="outline"
+              size="sm"
+            >
+              Show More
+            </Button>
+          </Box>
+        )}
+        {displayCount > INITIAL_DISPLAY_COUNT && (
+          <Box textAlign="center" mt={2}>
+            <Button
+              onClick={handleShowLess}
+              colorScheme="brand"
+              variant="ghost"
+              size="sm"
+            >
+              Show Less
+            </Button>
+          </Box>
+        )}
       </Box>
     </VStack>
   );

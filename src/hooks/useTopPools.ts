@@ -1,24 +1,26 @@
-import { usePools } from './usePools';
-import { Pool, TopPoolsData } from '../types/chart';
-import { TOP_POOLS_COUNT } from '../constants/config';
+import { useMemo } from 'react';
+import { Pool } from '../types/pool';
+import { TopPoolsData } from '../types/chart';
+import { usePoolsContext } from '../contexts/PoolsContext';
+import { calculateTotalTVL } from '../utils/calculations';
 
-export function useTopPools(): TopPoolsData {
-  const { pools, isLoading, isError, error } = usePools();
+export const useTopPools = (): TopPoolsData => {
+  const { pools, isLoading, isError, error } = usePoolsContext();
 
-  const topPools = pools
-    .slice(0, TOP_POOLS_COUNT)
-    .reduce((acc, pool) => {
-      return {
-        pools: [...acc.pools, pool],
-        totalTVL: acc.totalTVL + pool.tvlUsd,
-      };
-    }, { pools: [] as Pool[], totalTVL: 0 });
+  const topPools = useMemo(() => {
+    // Filter pools with BTC in the symbol and sort by TVL
+    return pools
+      .filter(pool => pool.symbol.includes('BTC'))
+      .sort((a, b) => b.tvlUsd - a.tvlUsd);
+  }, [pools]);
+
+  const totalTVL = useMemo(() => calculateTotalTVL(topPools), [topPools]);
 
   return {
-    topPools: topPools.pools,
-    totalTVL: topPools.totalTVL,
+    topPools,
+    totalTVL,
     isLoading,
     isError,
-    error,
+    error
   };
-}
+};
