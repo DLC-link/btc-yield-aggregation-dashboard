@@ -1,4 +1,4 @@
-import { Pool } from '../types/pool';
+import { Pool } from '../types/pool_temp';
 
 export const calculateTotalTVL = (pools: Pool[]): number => {
     return pools.reduce((total, pool) => total + pool.tvlUsd, 0);

@@ -4,7 +4,7 @@ import { useTopPools } from '../useTopPools';
 import { useTopYieldPools } from '../useTopYieldPools';
 import { useCharts } from '../useCharts';
 import { useBtcPrice } from '../useBtcPrice';
-import { Pool } from '../../types/pool';
+import { Pool } from '../../types/pool_temp';
 import { PoolChartData } from '../../types/chart';
 
 // Mock the hooks
