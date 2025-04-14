@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { Pool } from '../types/pool';
 import { TopPoolsData } from '../types/chart';
 import { usePoolsContext } from '../contexts/PoolsContext';
 import { calculateTotalTVL } from '../utils/calculations';

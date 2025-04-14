@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, useColorModeValue, Badge, HStack, Icon, Tooltip, Button } from '@chakra-ui/react';
-import { Pool } from '../types/pool';
 import { useTopYieldPools } from '../hooks/useTopYieldPools';
 import { formatTVL } from '../utils/formatters';
 import { FiTrendingUp, FiTrendingDown, FiInfo } from 'react-icons/fi';
