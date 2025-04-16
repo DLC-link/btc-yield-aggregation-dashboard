@@ -1,11 +1,31 @@
 import { useState, useRef } from 'react';
-import { 
-  Box, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, VStack, 
-  useColorModeValue, Badge, HStack, Icon, Tooltip, Button, Spinner,
-  Flex, Input, NumberInput, NumberInputField, 
-  FormControl, FormLabel, InputGroup, InputLeftAddon, Select, Collapse
+import {
+  Box,
+  Heading,
+  Text,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  VStack,
+  useColorModeValue,
+  Badge,
+  HStack,
+  Icon,
+  Tooltip,
+  Button,
+  Spinner,
+  Flex,
+  Input,
+  FormControl,
+  InputGroup,
+  InputLeftAddon,
+  Select,
+  Collapse,
 } from '@chakra-ui/react';
-import { FiInfo, FiChevronUp, FiChevronDown, FiFilter, FiSearch, FiX } from 'react-icons/fi';
+import { FiInfo, FiChevronUp, FiChevronDown, FiFilter, FiX } from 'react-icons/fi';
 import { useTopYieldPools, SortField, SortDirection } from '../hooks/useTopYieldPools';
 import { formatTVL } from '../utils/formatters';
 import { SearchIcon } from '@chakra-ui/icons';
@@ -18,7 +38,7 @@ export function TopBtcPools() {
   const [sortField, setSortField] = useState<SortField>('tvlUsd');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
-  
+
   // Filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -28,20 +48,22 @@ export function TopBtcPools() {
     maxTvl: '',
     minApy: '',
     maxApy: '',
-    risk: 'ALL'
+    risk: 'ALL',
   });
-  
+
   // Fetch data
-  const { topYieldPools, totalTVL, averageAPY, isLoading, isError, error } = 
-    useTopYieldPools(sortField, sortDirection);
-  
+  const { topYieldPools, totalTVL, averageAPY, isLoading, isError, error } = useTopYieldPools(
+    sortField,
+    sortDirection
+  );
+
   // Debug: Log the full data structure
-  console.log("All Pools Data:", topYieldPools);
-  
+  console.log('All Pools Data:', topYieldPools);
+
   // Log individual fields to see their exact values
   if (topYieldPools.length > 0) {
     const samplePool = topYieldPools[0];
-    console.log("Sample Pool:", {
+    console.log('Sample Pool:', {
       pool: samplePool.pool,
       project: samplePool.project,
       symbol: samplePool.symbol,
@@ -52,7 +74,7 @@ export function TopBtcPools() {
       // Log other values that might be useful
     });
   }
-  
+
   const tableRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -60,11 +82,18 @@ export function TopBtcPools() {
   // Apply filters
   const filteredPools = topYieldPools.filter(pool => {
     // Skip filtering if no filters are set
-    if (!filters.poolName && !filters.assetName && !filters.minTvl && !filters.maxTvl && 
-        !filters.minApy && !filters.maxApy && filters.risk === 'ALL') {
+    if (
+      !filters.poolName &&
+      !filters.assetName &&
+      !filters.minTvl &&
+      !filters.maxTvl &&
+      !filters.minApy &&
+      !filters.maxApy &&
+      filters.risk === 'ALL'
+    ) {
       return true;
     }
-    
+
     // Check pool name
     if (filters.poolName) {
       const searchTerm = filters.poolName.toLowerCase();
@@ -74,7 +103,7 @@ export function TopBtcPools() {
         return false;
       }
     }
-    
+
     // Check asset name
     if (filters.assetName) {
       const searchTerm = filters.assetName.toLowerCase();
@@ -83,32 +112,32 @@ export function TopBtcPools() {
         return false;
       }
     }
-    
+
     // Check minimum TVL
     if (filters.minTvl && pool.tvlUsd < parseFloat(filters.minTvl)) {
       return false;
     }
-    
+
     // Check maximum TVL
     if (filters.maxTvl && pool.tvlUsd > parseFloat(filters.maxTvl)) {
       return false;
     }
-    
+
     // Check minimum APY
     if (filters.minApy && pool.apy < parseFloat(filters.minApy)) {
       return false;
     }
-    
+
     // Check maximum APY
     if (filters.maxApy && pool.apy > parseFloat(filters.maxApy)) {
       return false;
     }
-    
+
     // Simplified risk check - direct comparison
     if (filters.risk !== 'ALL' && pool.ilRisk !== filters.risk) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -139,11 +168,11 @@ export function TopBtcPools() {
     if (sortField !== field) return null;
     return sortDirection === 'asc' ? <FiChevronUp /> : <FiChevronDown />;
   };
-  
+
   const handleFilterToggle = () => {
     setIsFilterOpen(!isFilterOpen);
   };
-  
+
   const handleFilterReset = () => {
     setFilters({
       poolName: '',
@@ -152,14 +181,14 @@ export function TopBtcPools() {
       maxTvl: '',
       minApy: '',
       maxApy: '',
-      risk: 'ALL'
+      risk: 'ALL',
     });
   };
-  
+
   const handleFilterChange = (field: string, value: string) => {
     setFilters(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -181,7 +210,7 @@ export function TopBtcPools() {
 
   const filterPanel = (
     <Collapse in={isFilterOpen} animateOpacity>
-      <Box 
+      <Box
         mt={4}
         p={6}
         borderWidth="1px"
@@ -192,21 +221,19 @@ export function TopBtcPools() {
       >
         <Flex justifyContent="space-between" alignItems="center" mb={6}>
           <Heading size="lg">Filter Pools</Heading>
-          <Button 
-            variant="ghost" 
-            onClick={handleFilterReset}
-            leftIcon={<FiX />}
-          >
+          <Button variant="ghost" onClick={handleFilterReset} leftIcon={<FiX />}>
             Reset Filters
           </Button>
         </Flex>
-        
+
         <VStack spacing={6} align="stretch">
           {/* First row of filters */}
           <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
             {/* Pool Name */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Pool Name</Text>
+              <Text mb={2} fontWeight="medium">
+                Pool Name
+              </Text>
               <InputGroup>
                 <InputLeftAddon pointerEvents="none">
                   <SearchIcon color="gray.500" />
@@ -214,14 +241,16 @@ export function TopBtcPools() {
                 <Input
                   placeholder="Search pool name..."
                   value={filters.poolName}
-                  onChange={(e) => handleFilterChange('poolName', e.target.value)}
+                  onChange={e => handleFilterChange('poolName', e.target.value)}
                 />
               </InputGroup>
             </Box>
-            
+
             {/* Asset Name */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Asset Name</Text>
+              <Text mb={2} fontWeight="medium">
+                Asset Name
+              </Text>
               <InputGroup>
                 <InputLeftAddon pointerEvents="none">
                   <SearchIcon color="gray.500" />
@@ -229,87 +258,94 @@ export function TopBtcPools() {
                 <Input
                   placeholder="Search asset..."
                   value={filters.assetName}
-                  onChange={(e) => handleFilterChange('assetName', e.target.value)}
+                  onChange={e => handleFilterChange('assetName', e.target.value)}
                 />
               </InputGroup>
             </Box>
           </Flex>
-          
+
           {/* Second row of filters */}
           <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
             {/* Min TVL */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Min TVL ($)</Text>
+              <Text mb={2} fontWeight="medium">
+                Min TVL ($)
+              </Text>
               <InputGroup>
                 <InputLeftAddon>$</InputLeftAddon>
                 <Input
                   placeholder="Minimum TVL"
                   value={filters.minTvl}
-                  onChange={(e) => handleFilterChange('minTvl', e.target.value)}
+                  onChange={e => handleFilterChange('minTvl', e.target.value)}
                   type="number"
                 />
               </InputGroup>
             </Box>
-            
+
             {/* Max TVL */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Max TVL ($)</Text>
+              <Text mb={2} fontWeight="medium">
+                Max TVL ($)
+              </Text>
               <InputGroup>
                 <InputLeftAddon>$</InputLeftAddon>
                 <Input
                   placeholder="Maximum TVL"
                   value={filters.maxTvl}
-                  onChange={(e) => handleFilterChange('maxTvl', e.target.value)}
+                  onChange={e => handleFilterChange('maxTvl', e.target.value)}
                   type="number"
                 />
               </InputGroup>
             </Box>
           </Flex>
-          
+
           {/* Third row of filters */}
           <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
             {/* Min APY */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Min APY (%)</Text>
+              <Text mb={2} fontWeight="medium">
+                Min APY (%)
+              </Text>
               <InputGroup>
                 <InputLeftAddon>%</InputLeftAddon>
                 <Input
                   placeholder="Minimum APY"
                   value={filters.minApy}
-                  onChange={(e) => handleFilterChange('minApy', e.target.value)}
+                  onChange={e => handleFilterChange('minApy', e.target.value)}
                   type="number"
                 />
               </InputGroup>
             </Box>
-            
+
             {/* Max APY */}
             <Box flex="1">
-              <Text mb={2} fontWeight="medium">Max APY (%)</Text>
+              <Text mb={2} fontWeight="medium">
+                Max APY (%)
+              </Text>
               <InputGroup>
                 <InputLeftAddon>%</InputLeftAddon>
                 <Input
                   placeholder="Maximum APY"
                   value={filters.maxApy}
-                  onChange={(e) => handleFilterChange('maxApy', e.target.value)}
+                  onChange={e => handleFilterChange('maxApy', e.target.value)}
                   type="number"
                 />
               </InputGroup>
             </Box>
           </Flex>
-          
+
           {/* Risk filter */}
           <FormControl>
-            <Text mb={2} fontWeight="medium">Risk</Text>
-            <Select
-              value={filters.risk}
-              onChange={(e) => handleFilterChange('risk', e.target.value)}
-            >
+            <Text mb={2} fontWeight="medium">
+              Risk
+            </Text>
+            <Select value={filters.risk} onChange={e => handleFilterChange('risk', e.target.value)}>
               <option value="ALL">All</option>
               <option value="YES">Yes</option>
               <option value="NO">No</option>
             </Select>
           </FormControl>
-          
+
           {/* Results count */}
           <Flex justify="flex-end">
             <Text fontSize="sm" color="gray.600">
@@ -328,22 +364,18 @@ export function TopBtcPools() {
           <Heading as="h2" size="lg" color="brand.accent">
             Top BTC Pools
           </Heading>
-          <Tooltip 
-            label="Click on column headers to sort"
-            hasArrow
-            placement="right"
-          >
+          <Tooltip label="Click on column headers to sort" hasArrow placement="right">
             <Box>
               <Icon as={FiInfo} color="brand.accent" cursor="help" />
             </Box>
           </Tooltip>
         </HStack>
-        
+
         <Button
           leftIcon={<FiFilter />}
           onClick={handleFilterToggle}
           colorScheme="brand"
-          variant={isFilterOpen ? "solid" : "outline"}
+          variant={isFilterOpen ? 'solid' : 'outline'}
         >
           Filter
         </Button>
@@ -378,17 +410,17 @@ export function TopBtcPools() {
           </Heading>
         </Box>
       </Flex>
-      
+
       {filterPanel}
 
-      <Box 
+      <Box
         ref={tableRef}
-        overflowX="auto" 
-        bg={bgColor} 
-        p={6} 
-        borderRadius="lg" 
-        borderWidth="1px" 
-        borderColor={borderColor} 
+        overflowX="auto"
+        bg={bgColor}
+        p={6}
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor={borderColor}
         width="100%"
       >
         <Table variant="simple" size="md">
@@ -396,10 +428,10 @@ export function TopBtcPools() {
             <Tr>
               <Th width="10%">Rank</Th>
               <Th width="40%">Pool</Th>
-              <Th 
-                width="20%" 
-                textAlign="center" 
-                cursor="pointer" 
+              <Th
+                width="20%"
+                textAlign="center"
+                cursor="pointer"
                 onClick={() => handleSort('tvlUsd')}
                 position="relative"
                 _hover={{
@@ -419,20 +451,20 @@ export function TopBtcPools() {
                   </Box>
                 </HStack>
                 {sortField === 'tvlUsd' && (
-                  <Box 
-                    position="absolute" 
-                    bottom="0" 
-                    left="0" 
-                    right="0" 
-                    height="2px" 
+                  <Box
+                    position="absolute"
+                    bottom="0"
+                    left="0"
+                    right="0"
+                    height="2px"
                     bg="brand.accent"
                   />
                 )}
               </Th>
-              <Th 
-                width="20%" 
-                textAlign="center" 
-                cursor="pointer" 
+              <Th
+                width="20%"
+                textAlign="center"
+                cursor="pointer"
                 onClick={() => handleSort('apy')}
                 position="relative"
                 _hover={{
@@ -452,23 +484,25 @@ export function TopBtcPools() {
                   </Box>
                 </HStack>
                 {sortField === 'apy' && (
-                  <Box 
-                    position="absolute" 
-                    bottom="0" 
-                    left="0" 
-                    right="0" 
-                    height="2px" 
+                  <Box
+                    position="absolute"
+                    bottom="0"
+                    left="0"
+                    right="0"
+                    height="2px"
                     bg="brand.accent"
                   />
                 )}
               </Th>
-              <Th width="10%" textAlign="center">Risk</Th>
+              <Th width="10%" textAlign="center">
+                Risk
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {displayedPools.length > 0 ? (
               displayedPools.map((pool, index) => (
-                <Tr 
+                <Tr
                   key={pool.pool}
                   _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
                   transition="background-color 0.2s"
@@ -483,7 +517,7 @@ export function TopBtcPools() {
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
-                      fontSize={index + 1 >= 1000 ? "xs" : index + 1 >= 100 ? "sm" : "lg"}
+                      fontSize={index + 1 >= 1000 ? 'xs' : index + 1 >= 100 ? 'sm' : 'lg'}
                       fontWeight="bold"
                     >
                       #{index + 1}
@@ -525,7 +559,11 @@ export function TopBtcPools() {
                       textAlign="center"
                       fontSize="sm"
                       fontWeight="500"
-                      backgroundColor={pool.ilRisk.toLowerCase() === 'no' ? 'rgba(154, 230, 180, 0.3)' : 'rgba(254, 178, 178, 0.3)'}
+                      backgroundColor={
+                        pool.ilRisk.toLowerCase() === 'no'
+                          ? 'rgba(154, 230, 180, 0.3)'
+                          : 'rgba(254, 178, 178, 0.3)'
+                      }
                       color={pool.ilRisk.toLowerCase() === 'no' ? '#276749' : '#9B2C2C'}
                       textTransform="uppercase"
                     >
@@ -543,28 +581,18 @@ export function TopBtcPools() {
             )}
           </Tbody>
         </Table>
-        
+
         {hasMorePools && (
           <Box textAlign="center" mt={4}>
-            <Button
-              onClick={handleShowMore}
-              colorScheme="brand"
-              variant="outline"
-              size="sm"
-            >
+            <Button onClick={handleShowMore} colorScheme="brand" variant="outline" size="sm">
               Show More
             </Button>
           </Box>
         )}
-        
+
         {displayCount > INITIAL_DISPLAY_COUNT && filteredPools.length > INITIAL_DISPLAY_COUNT && (
           <Box textAlign="center" mt={2}>
-            <Button
-              onClick={handleShowLess}
-              colorScheme="brand"
-              variant="ghost"
-              size="sm"
-            >
+            <Button onClick={handleShowLess} colorScheme="brand" variant="ghost" size="sm">
               Show Less
             </Button>
           </Box>
@@ -572,4 +600,4 @@ export function TopBtcPools() {
       </Box>
     </VStack>
   );
-} 
+}
