@@ -134,7 +134,7 @@ export function TopBtcPools() {
     }
 
     // Simplified risk check - direct comparison
-    if (filters.risk !== 'ALL' && pool.ilRisk !== filters.risk) {
+    if (filters.risk !== 'ALL' && pool.ilRisk !== filters.risk.toLowerCase()) {
       return false;
     }
 
