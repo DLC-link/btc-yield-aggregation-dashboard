@@ -30,7 +30,7 @@ describe('Hooks', () => {
             apyPct7D: 0.06,
             apyPct30D: 0.07,
             stablecoin: false,
-            ilRisk: 'LOW',
+            ilRisk: 'no',
             exposure: 'BTC',
             predictions: {
                 predictedClass: 'HIGH',
