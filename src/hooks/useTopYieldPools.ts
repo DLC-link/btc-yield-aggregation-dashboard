@@ -2,7 +2,13 @@ import { usePoolsContext } from '../contexts/PoolsContext';
 import { TopYieldPoolsData } from '../types/chart';
 import { useBtcPrice } from './useBtcPrice';
 
-export function useTopYieldPools(): TopYieldPoolsData {
+export type SortField = 'tvlUsd' | 'apy';
+export type SortDirection = 'asc' | 'desc';
+
+export function useTopYieldPools(
+  sortField: SortField = 'apy',
+  sortDirection: SortDirection = 'desc'
+): TopYieldPoolsData {
   const { pools, isLoading: isPoolsLoading, isError: isPoolsError, error: poolsError } = usePoolsContext();
   const { btcPrice, isLoading: isPriceLoading } = useBtcPrice();
 
@@ -28,14 +34,25 @@ export function useTopYieldPools(): TopYieldPoolsData {
     .filter(pool =>
       pool.tvlUsd >= minTVLInUSD &&
       pool.symbol.toUpperCase().includes('BTC')
-    )
-    .sort((a, b) => b.apy - a.apy);
+    );
+    
+  // Sort the pools based on the provided sort field and direction
+  const sortedPools = [...filteredPools].sort((a, b) => {
+    const valueA = a[sortField];
+    const valueB = b[sortField];
+    
+    if (sortDirection === 'asc') {
+      return valueA - valueB;
+    } else {
+      return valueB - valueA;
+    }
+  });
 
   const totalTVL = filteredPools.reduce((sum, pool) => sum + pool.tvlUsd, 0);
   const averageAPY = filteredPools.reduce((sum, pool) => sum + pool.apy, 0) / filteredPools.length;
 
   return {
-    topYieldPools: filteredPools,
+    topYieldPools: sortedPools,
     totalTVL,
     averageAPY,
     isLoading,
