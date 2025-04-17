@@ -48,3 +48,13 @@ export interface TopYieldPoolsData {
     isError: boolean
     error: Error | null
 } 
+
+export interface FilterOptions {
+    poolName: string;
+    assetName: string;
+    minTvl: string;
+    maxTvl: string;
+    minApy: string;
+    maxApy: string;
+    risk: Pool['ilRisk'];
+}

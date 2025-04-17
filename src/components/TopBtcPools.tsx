@@ -28,7 +28,9 @@ import {
 import { FiInfo, FiChevronUp, FiChevronDown, FiFilter, FiX } from 'react-icons/fi';
 import { useTopYieldPools, SortField, SortDirection } from '../hooks/useTopYieldPools';
 import { formatTVL } from '../utils/formatters';
+import { filterPools } from '../utils/filterPools';
 import { SearchIcon } from '@chakra-ui/icons';
+import { FilterOptions } from '../types/chart';
 
 const INITIAL_DISPLAY_COUNT = 5;
 const LOAD_MORE_COUNT = 10;
@@ -41,14 +43,14 @@ export function TopBtcPools() {
 
   // Filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterOptions>({
     poolName: '',
     assetName: '',
     minTvl: '',
     maxTvl: '',
     minApy: '',
     maxApy: '',
-    risk: 'ALL',
+    risk: 'all',
   });
 
   // Fetch data
@@ -57,89 +59,11 @@ export function TopBtcPools() {
     sortDirection
   );
 
-  // Debug: Log the full data structure
-  console.log('All Pools Data:', topYieldPools);
-
-  // Log individual fields to see their exact values
-  if (topYieldPools.length > 0) {
-    const samplePool = topYieldPools[0];
-    console.log('Sample Pool:', {
-      pool: samplePool.pool,
-      project: samplePool.project,
-      symbol: samplePool.symbol,
-      tvlUsd: samplePool.tvlUsd,
-      apy: samplePool.apy,
-      ilRisk: samplePool.ilRisk,
-      ilRiskType: typeof samplePool.ilRisk,
-      // Log other values that might be useful
-    });
-  }
-
   const tableRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-  // Apply filters
-  const filteredPools = topYieldPools.filter(pool => {
-    // Skip filtering if no filters are set
-    if (
-      !filters.poolName &&
-      !filters.assetName &&
-      !filters.minTvl &&
-      !filters.maxTvl &&
-      !filters.minApy &&
-      !filters.maxApy &&
-      filters.risk === 'ALL'
-    ) {
-      return true;
-    }
-
-    // Check pool name
-    if (filters.poolName) {
-      const searchTerm = filters.poolName.toLowerCase();
-      const poolNameLower = pool.project.toLowerCase();
-      const symbolLower = pool.symbol.toLowerCase();
-      if (!poolNameLower.includes(searchTerm) && !symbolLower.includes(searchTerm)) {
-        return false;
-      }
-    }
-
-    // Check asset name
-    if (filters.assetName) {
-      const searchTerm = filters.assetName.toLowerCase();
-      const assetNameLower = pool.symbol.toLowerCase();
-      if (!assetNameLower.includes(searchTerm)) {
-        return false;
-      }
-    }
-
-    // Check minimum TVL
-    if (filters.minTvl && pool.tvlUsd < parseFloat(filters.minTvl)) {
-      return false;
-    }
-
-    // Check maximum TVL
-    if (filters.maxTvl && pool.tvlUsd > parseFloat(filters.maxTvl)) {
-      return false;
-    }
-
-    // Check minimum APY
-    if (filters.minApy && pool.apy < parseFloat(filters.minApy)) {
-      return false;
-    }
-
-    // Check maximum APY
-    if (filters.maxApy && pool.apy > parseFloat(filters.maxApy)) {
-      return false;
-    }
-
-    // Simplified risk check - direct comparison
-    if (filters.risk !== 'ALL' && pool.ilRisk !== filters.risk.toLowerCase()) {
-      return false;
-    }
-
-    return true;
-  });
+  const filteredPools = filterPools(topYieldPools, filters);
 
   const displayedPools = filteredPools.slice(0, displayCount);
   const hasMorePools = displayCount < filteredPools.length;
@@ -171,18 +95,6 @@ export function TopBtcPools() {
 
   const handleFilterToggle = () => {
     setIsFilterOpen(!isFilterOpen);
-  };
-
-  const handleFilterReset = () => {
-    setFilters({
-      poolName: '',
-      assetName: '',
-      minTvl: '',
-      maxTvl: '',
-      minApy: '',
-      maxApy: '',
-      risk: 'ALL',
-    });
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -221,8 +133,8 @@ export function TopBtcPools() {
       >
         <Flex justifyContent="space-between" alignItems="center" mb={6}>
           <Heading size="lg">Filter Pools</Heading>
-          <Button variant="ghost" onClick={handleFilterReset} leftIcon={<FiX />}>
-            Reset Filters
+          <Button variant="ghost" onClick={handleFilterToggle} leftIcon={<FiX />}>
+            Close Filters
           </Button>
         </Flex>
 
@@ -340,9 +252,9 @@ export function TopBtcPools() {
               Risk
             </Text>
             <Select value={filters.risk} onChange={e => handleFilterChange('risk', e.target.value)}>
-              <option value="ALL">All</option>
-              <option value="YES">Yes</option>
-              <option value="NO">No</option>
+              <option value="all">All</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
             </Select>
           </FormControl>
 

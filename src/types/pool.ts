@@ -21,7 +21,7 @@ export interface Pool {
   apyPct7D: number;
   apyPct30D: number;
   stablecoin: boolean;
-  ilRisk: 'yes' | 'no';
+  ilRisk: 'yes' | 'no' | 'all';
   exposure: string;
   predictions: PoolPredictions;
   growthRate: number;
