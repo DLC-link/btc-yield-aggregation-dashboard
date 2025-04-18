@@ -18,7 +18,7 @@ async function fetchPoolData(pool: { pool: string; project: string; symbol: stri
     const growthRate = firstTVL > 0 ? ((lastTVL - firstTVL) / firstTVL) * 100 : 0;
 
     return {
-      poolId: pool.pool,
+      pool: pool.pool,
       project: pool.project,
       symbol: pool.symbol,
       data: sortedData,

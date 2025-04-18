@@ -11,7 +11,7 @@ export interface ChartResponse {
 }
 
 export interface PoolChartData {
-    poolId: string
+    pool: string
     project: string
     symbol: string
     data: ChartDataPoint[]

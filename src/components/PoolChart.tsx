@@ -263,7 +263,7 @@ export function PoolChart() {
               .map((pool, i) => {
                 const last = pool.data.slice(-1)[0]!;
                 return (
-                  <Tr key={pool.poolId} _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}>
+                  <Tr key={pool.pool} _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}>
                     <Td>
                       <HStack spacing={2}>
                         <Box
