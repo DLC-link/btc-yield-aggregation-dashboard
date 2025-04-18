@@ -16,7 +16,6 @@ vi.mock('../useBtcPrice');
 describe('Hooks', () => {
     const mockPools: Pool[] = [
         {
-            id: '1',
             chain: 'ethereum',
             project: 'project1',
             symbol: 'BTC-ETH',
@@ -57,7 +56,7 @@ describe('Hooks', () => {
 
     const mockChartData: PoolChartData[] = [
         {
-            poolId: '1',
+            pool: 'pool1',
             project: 'project1',
             symbol: 'BTC-ETH',
             data: [
