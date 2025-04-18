@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -31,11 +31,13 @@ import { formatTVL } from '../utils/formatters';
 import { filterPools } from '../utils/filterPools';
 import { SearchIcon } from '@chakra-ui/icons';
 import { FilterOptions } from '../types/chart';
+import { useFilterContext } from '../hooks/useFilterContext';
 
 const INITIAL_DISPLAY_COUNT = 5;
 const LOAD_MORE_COUNT = 10;
 
 export function TopBtcPools() {
+  const { setFilteredPoolIds } = useFilterContext();
   // Sorting state
   const [sortField, setSortField] = useState<SortField>('tvlUsd');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -58,15 +60,21 @@ export function TopBtcPools() {
     sortField,
     sortDirection
   );
-
   const tableRef = useRef<HTMLDivElement>(null);
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-  const filteredPools = filterPools(topYieldPools, filters);
 
+  const filteredPools = filterPools(topYieldPools, filters);
   const displayedPools = filteredPools.slice(0, displayCount);
   const hasMorePools = displayCount < filteredPools.length;
+  useEffect(() => {
+    console.log("Examine filteredPools", displayedPools[0]);
+    const poolIds = displayedPools.map(pool => pool.pool);
+    console.log("poolIds", poolIds);
+    setFilteredPoolIds(poolIds);
+  }, [filteredPools, setFilteredPoolIds]);
+
 
   const handleShowMore = () => {
     setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, filteredPools.length));

@@ -4,6 +4,7 @@ import { PoolChartData, ChartData } from '../types/chart';
 import { fetchPoolChart } from '../services/api';
 import { TOP_POOLS_COUNT, CHART_DAYS, QUERY_CONFIG } from '../constants/config';
 import { useBtcPrice } from './useBtcPrice';
+import { useFilterContext } from './useFilterContext';
 
 async function fetchPoolData(pool: { pool: string; project: string; symbol: string }): Promise<PoolChartData | null> {
   try {
@@ -43,19 +44,15 @@ async function fetchPoolsInBatches(
 export function useCharts(): ChartData {
   const { pools, isLoading: isPoolsLoading } = usePoolsContext();
   const { btcPrice, isLoading: isPriceLoading } = useBtcPrice();
-
+  const { filteredPoolIds } = useFilterContext();
   const { data, isLoading, isError, error } = useQuery<PoolChartData[]>({
-    queryKey: ['charts', btcPrice],
+    queryKey: ['charts', btcPrice, filteredPoolIds],
     queryFn: async () => {
       if (!pools?.length) throw new Error('No pools available');
 
-      const minTVLInBTC = 50; // 50 BTC minimum
-      const minTVLInUSD = minTVLInBTC * btcPrice;
-
       const topPools = pools
         .filter(pool =>
-          pool.tvlUsd >= minTVLInUSD &&
-          pool.symbol.toUpperCase().includes('BTC')
+          filteredPoolIds.includes(pool.pool)
         )
         .sort((a, b) => b.apy - a.apy)
         .slice(0, TOP_POOLS_COUNT);
@@ -68,7 +65,7 @@ export function useCharts(): ChartData {
 
       return poolData;
     },
-    enabled: !!pools?.length && !isPoolsLoading && !isPriceLoading,
+    enabled: !!pools?.length && !isPoolsLoading && !isPriceLoading && filteredPoolIds.length > 0,
     ...QUERY_CONFIG,
   });
 
