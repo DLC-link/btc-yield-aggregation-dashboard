@@ -123,7 +123,7 @@ export function PoolChart() {
       {
         name: 'APY',
         type: 'column',
-        data: chartData.map(p => (p.data.slice(-1)[0]?.apy ?? 0) * 100),
+        data: chartData.map(p => (p.data.slice(-1)[0]?.apy ?? 0)),
         color: CHART_COLORS[1],
         yAxis: 1,
       },
